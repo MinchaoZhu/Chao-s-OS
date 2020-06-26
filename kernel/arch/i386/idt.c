@@ -8,7 +8,7 @@ idt_entry_t idt_entries[256];
 // IDTR
 idt_ptr_t idt_ptr;
 
-// function pointers array for ISR
+// function pointers array for interrupt_handlers impelements table
 extern interrupt_handler_t interrupt_handlers[256];
 
 // set idt
@@ -21,6 +21,7 @@ void init_idt(){
     //init interrupt handlers implement   in kernel/interrupt.c
     init_interrupt_handlers();
 
+    // set idt_ptr
     idt_ptr.limit = sizeof(idt_entry_t) * 256 - 1;
     idt_ptr.base = (uint32_t)& idt_entries;
 
@@ -78,9 +79,13 @@ static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags
 
 void isr_handler(pt_regs *regs)
 {
+    // when interrupt occurs, this method will take over control 
     if (interrupt_handlers[regs->int_no]) {
-          interrupt_handlers[regs->int_no](regs);
+        // if there exists handler registered for this interrupt code
+        // transfer control to this function
+        interrupt_handlers[regs->int_no](regs);
     } else {
+        // if no handlers registered for this interrupt code
         printf("Unhandled interrupt: %d\n", regs->int_no);
     }
 }
