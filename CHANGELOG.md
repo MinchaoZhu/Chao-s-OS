@@ -2,7 +2,10 @@
 
 ## Unreleased
 - add global description table
-
+- add idt table
+- add frame to register interrupt handler implement
+    - defined in kernel/intterrupt.h
+    - impelements in kernel/intterrupt.c
 
 ## [0.0.1] - 2020-06-22
 ### Added
