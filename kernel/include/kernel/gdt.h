@@ -1,8 +1,6 @@
 #ifndef _INCLUDE_GDT_H_
 #define _INCLUDE_GDT_H_
 
-#include <stddef.h>
-#include <sys/cdefs.h>
 #include <stdint.h>
 
 typedef

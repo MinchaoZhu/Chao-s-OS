@@ -16,7 +16,7 @@ char* uint2string(unsigned int n, char* buf, size_t max_size){
 	int i = max_size - 1;
 	buf[i] = '\0';
 	if(n == 0){
-		buf[i] = '0';
+		buf[--i] = '0';
 	}
 	while(i>=0 && n>0){
 		--i;
