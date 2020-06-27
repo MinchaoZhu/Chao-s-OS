@@ -38,9 +38,13 @@ For cross gcc compiler, please refers to https://wiki.osdev.org/Building_GCC
 
 
 ## File Organization
-```kernel``` is folder for kernel part
-    ```arch``` is for target architechture distribution
-    ```include``` is for kernel part headers
-    ```kernel``` is kernel source file
+- ```kernel``` is folder for kernel part
+    - ```arch``` is for target architechture distribution
+        - ```i386```: source file and linker for i386
+    - ```include``` is for kernel part headers
+    - ```kernel``` is kernel source file
 
-```libc``` is for c runtime lib
+- ```libc``` is for c runtime lib
+    - Some methods are basic for gcc freestanding mode
+    - > Most of the compiler support routines used by GCC are present in libgcc, but there are a few exceptions. GCC requires the freestanding environment provide ```memcpy```, ```memmove```, ```memset``` and ```memcmp```. Finally, if __builtin_trap is used, and the target does not implement the trap pattern, then GCC emits a call to ```abort```.
+    - https://gcc.gnu.org/onlinedocs/gcc/Standards.html
