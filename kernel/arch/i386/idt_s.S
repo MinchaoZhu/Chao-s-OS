@@ -23,6 +23,7 @@ isr\n:
 .endm
 
 
+
 // define ISR by using macro
 ISR_NOERRCODE  0
 ISR_NOERRCODE  1
@@ -59,6 +60,26 @@ ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
 
+# irq0 - irq15
+# isr32- isr47
+ISR_NOERRCODE 32 # irq0    system timer (cannot be changed)
+ISR_NOERRCODE 33 # irq1    keyboard controller (cannot be changed)
+ISR_NOERRCODE 34 # irq2    cascaded signals from IRQs 8–15 (any devices configured to use IRQ 2 will actually be using IRQ 9)
+ISR_NOERRCODE 35 # irq3    serial port controller for serial port 2 (shared with serial port 4, if present)
+ISR_NOERRCODE 36 # irq4    serial port controller for serial port 1 (shared with serial port 3, if present)
+ISR_NOERRCODE 37 # irq5    parallel port 2 and 3  or  sound card
+ISR_NOERRCODE 38 # irq6    floppy disk controller
+ISR_NOERRCODE 39 # irq7    parallel port 1.
+ISR_NOERRCODE 40 # irq8    real-time clock (RTC)
+ISR_NOERRCODE 41 # irq9    Advanced Configuration and Power Interface (ACPI) system control interrupt on Intel chipsets.
+ISR_NOERRCODE 42 # irq10   The Interrupt is left open for the use of peripherals (open interrupt/available, SCSI or NIC)
+ISR_NOERRCODE 43 # irq11   The Interrupt is left open for the use of peripherals (open interrupt/available, SCSI or NIC)
+ISR_NOERRCODE 44 # irq12   mouse on PS/2 connector
+ISR_NOERRCODE 45 # irq13   CPU co-processor  or  integrated floating point unit  or  inter-processor interrupt (use depends on OS)
+ISR_NOERRCODE 46 # irq14   primary ATA channel (ATA interface usually serves hard disk drives and CD drives)
+ISR_NOERRCODE 47 # irq15   secondary ATA channel
+
+
 ISR_NOERRCODE 255
 
 
@@ -91,7 +112,7 @@ isr_common_stub:
 
     popal                 # Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
     add $8, %esp         # clear error code and ISR
-    iret                 # interrupt return
+    iret                 # interrupt return: pop CS, EIP, EFLAGS, SS, ESP
 
 .global idt_flush
 .type idt_flush, @function
@@ -99,3 +120,7 @@ idt_flush:
     mov 4(%esp), %eax
     lidt (%eax)
     ret
+
+
+
+

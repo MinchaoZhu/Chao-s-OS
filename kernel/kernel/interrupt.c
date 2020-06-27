@@ -18,7 +18,7 @@ void register_interrupt_handler(uint8_t n, interrupt_handler_t h){
 
 interrupt_handler_t isr_handler255(pt_regs *regs){
 
-    printf("Interrupt No.255 is processed");
+    printf("Interrupt No.255 is processed\n");
 }
 
 

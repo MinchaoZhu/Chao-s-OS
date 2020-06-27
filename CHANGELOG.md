@@ -1,11 +1,14 @@
 # Change Log
 
 ## Unreleased
-- add global description table
-- add idt table
-- add frame to register interrupt handler implement
+### Added
+- global description table
+- idt table
+- frame to register interrupt handler implement
     - defined in kernel/intterrupt.h
     - impelements in kernel/intterrupt.c
+- isr for ISR0 to ISR15
+- a timer interrupt handler entry which can be assigned by user
 
 ## [0.0.1] - 2020-06-22
 ### Added

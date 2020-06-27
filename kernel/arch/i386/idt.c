@@ -2,6 +2,7 @@
 #include <string.h> // memset
 #include <stdio.h>  // printf
 #include "interrupt/interrupt.h"
+#include "kernel/ioport.h"
 
 idt_entry_t idt_entries[256];
 
@@ -61,9 +62,40 @@ void init_idt(){
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
 
+    // Initialize 8259A chip port
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+    outb(0x21, 0x20);
+    outb(0xA1, 0x28);
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
+    
+    // Initialize 8259A interrupt request entry
+    idt_set_gate(32, (uint32_t)isr32, 0x08, 0x8E);
+    idt_set_gate(33, (uint32_t)isr33, 0x08, 0x8E);
+    idt_set_gate(34, (uint32_t)isr34, 0x08, 0x8E);
+    idt_set_gate(35, (uint32_t)isr35, 0x08, 0x8E);
+    idt_set_gate(36, (uint32_t)isr36, 0x08, 0x8E);
+    idt_set_gate(37, (uint32_t)isr37, 0x08, 0x8E);
+    idt_set_gate(38, (uint32_t)isr38, 0x08, 0x8E);
+    idt_set_gate(39, (uint32_t)isr39, 0x08, 0x8E);
+    idt_set_gate(40, (uint32_t)isr40, 0x08, 0x8E);
+    idt_set_gate(41, (uint32_t)isr41, 0x08, 0x8E);
+    idt_set_gate(42, (uint32_t)isr42, 0x08, 0x8E);
+    idt_set_gate(43, (uint32_t)isr43, 0x08, 0x8E);
+    idt_set_gate(44, (uint32_t)isr44, 0x08, 0x8E);
+    idt_set_gate(45, (uint32_t)isr45, 0x08, 0x8E);
+    idt_set_gate(46, (uint32_t)isr46, 0x08, 0x8E);
+    idt_set_gate(47, (uint32_t)isr47, 0x08, 0x8E);
+
     idt_set_gate(255, (uint32_t)isr255, 0x08, 0x8E);
 
     idt_flush((uint32_t)&idt_ptr);
+    
 
 }
 
@@ -77,15 +109,26 @@ static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags
     idt_entries[num].flags = flags;  // | 0x60
 }
 
+int i = 0;
+
 void isr_handler(pt_regs *regs)
 {
+    uint8_t int_no = regs -> int_no & 0xFF;
+    if(int_no >= 32 && int_no < 40){
+        outb(0x20, 0x20);
+    }
+    if(int_no >= 40 && int_no <=47){
+        outb(0x20, 0x20);
+        outb(0xA0, 0x20);
+    }
+
     // when interrupt occurs, this method will take over control 
-    if (interrupt_handlers[regs->int_no]) {
+    if (interrupt_handlers[int_no]) {
         // if there exists handler registered for this interrupt code
         // transfer control to this function
-        interrupt_handlers[regs->int_no](regs);
+        interrupt_handlers[int_no](regs);
     } else {
         // if no handlers registered for this interrupt code
-        printf("Unhandled interrupt: %d\n", regs->int_no);
+        printf("Unhandled interrupt: %d\n", int_no);
     }
 }
