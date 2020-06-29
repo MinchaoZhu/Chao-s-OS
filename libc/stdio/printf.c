@@ -42,6 +42,28 @@ char* int2string(int n, char* buf, size_t max_size){
 	}
 }
 
+char* hex2string(int n, char* buf, size_t max_size, char flag){
+	if (n <= 0) {
+		// TODO: n is negtive
+		return int2string(n, buf, max_size);
+	}
+	else {
+		char mapx[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+		char mapX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+		int i = max_size - 1;
+		buf[i] = '\0';
+		while(i>=0 && n>0){
+			--i;
+			buf[i] = flag == 'x' ? mapx[n % 16] : mapX[n % 16];
+			n = n >> 4;
+		}
+		return n == 0 ? buf + i : NULL;
+	}
+	
+
+}
+
 int printf(const char* restrict format, ...) {
 	va_list parameters;
 	va_start(parameters, format);
@@ -105,7 +127,22 @@ int printf(const char* restrict format, ...) {
 			if (!print(str, len))
 				return -1;
 			written += len;
-		} else {
+		} else if (*format == 'x' || *format == 'X') {
+			char flag = *format;
+			format++;
+			int n = (int) va_arg(parameters, int);
+			char* str = hex2string(n, buf, buf_size, flag);
+			size_t len = strlen(str);
+			if (maxrem < len) {
+				// TODO: Set errno to EOVERFLOW.
+				return -1;
+			}
+			if (!print(str, len))
+				return -1;
+			written += len;
+		}
+		
+		else {
 			format = format_begun_at;
 			size_t len = strlen(format);
 			if (maxrem < len) {

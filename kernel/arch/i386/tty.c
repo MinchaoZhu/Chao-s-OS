@@ -54,6 +54,7 @@ void terminal_putchar(char c) {
 void terminal_write(const char* data, size_t size) {
 	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
+	terminal_cursor_move();
 }
 
 void terminal_writestring(const char* data) {
@@ -62,7 +63,7 @@ void terminal_writestring(const char* data) {
 
 void terminal_roll(void){
 	for(size_t i = 0; i < VGA_HEIGHT-1; ++i)
-		memcpy(terminal_buffer+i*VGA_WIDTH, terminal_buffer+(i+1)*VGA_WIDTH, VGA_WIDTH);
+		memcpy(terminal_buffer+i*VGA_WIDTH, terminal_buffer+(i+1)*VGA_WIDTH, VGA_WIDTH*2);
 	for(size_t j = 0; j < VGA_WIDTH; ++j)
 		terminal_buffer[VGA_WIDTH*(VGA_HEIGHT-1) + j] = vga_entry(' ', terminal_color);
 }
@@ -73,4 +74,15 @@ void terminal_newline(void){
 		terminal_row = VGA_HEIGHT - 1;
 	}
 	terminal_column = 0;
+	terminal_cursor_move();
+}
+
+void terminal_cursor_move() {
+	uint16_t cursorLocation = terminal_row * VGA_WIDTH + terminal_column;
+
+    outb(0x3D4, 14);                    
+    outb(0x3D5, cursorLocation >> 8);   // upper 8 bits
+    outb(0x3D4, 15);                    
+    outb(0x3D5, cursorLocation);        // lower 8 bits
+
 }
