@@ -16,15 +16,24 @@
 .section .bss
 .align 16
 stack_bottom:
-.skip 16384 # 16 KiB
+.skip 32768 # 32 KiB
 stack_top:
+.skip 4
+
+# multiboot information
+.global global_multiboot_ptr
+global_multiboot_ptr:
+.skip 4
 
 # The kernel entry point.
 .section .text
 .global _start
 .type _start, @function
 _start:
+	# init current stack
 	movl $stack_top, %esp
+	# set multiboot ptr, copy from ebx
+	mov %ebx, global_multiboot_ptr
 
 	# Call the global constructors.
 	call _init

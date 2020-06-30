@@ -129,6 +129,6 @@ void isr_handler(pt_regs *regs)
         interrupt_handlers[int_no](regs);
     } else {
         // if no handlers registered for this interrupt code
-        printf("Unhandled interrupt: %d\n", int_no);
+        // printf("Unhandled interrupt: %d\n", int_no);
     }
 }

@@ -1,16 +1,30 @@
 # Chao-s-OS
 
-A simple OS kernel project in GPLv3 license
+A 32 bits X86 OS kernel project in GPLv3 license
 - The output image of kernel is in Multiboot standard
 - You can loaded it by qemu/bochs or other simulator.
+
+## Feature
+- Multiboot standard
+- Physic memory management
+    - support any physic memory size up to 4 GiB
+    - buddy system
+    ```
+        Memory Map
+        ┌──────────┬────────┬─────────────┬──────────────────────────────────┬──────────┐
+        │ reserved ┼ kernel ┼ pages table ┼        memory for kmalloc        ┼ reserved │          
+        └──────────┴────────┴─────────────┴──────────────────────────────────┴──────────┘
+                                     normal_base
+    ```
 
 ## Tool-Chain
 
 The project uses GNU Compiler Collection.
 - gcc: version 10.1.0
     - COLLECT_GCC=i686-elf-gcc
-    - which including c compiler, asm compiler, linker and freestanding libc
-    - all assembly source files use AT&T Assembly Syntax surported by gcc as
+    - c compiler
+    - gas
+    - ld
 - GNU Make 4.1
 - grub-file (GRUB) 2.02-2ubuntu8.15
     - for multiboot image building
