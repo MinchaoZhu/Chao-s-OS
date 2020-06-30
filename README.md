@@ -10,11 +10,12 @@ A 32 bits X86 OS kernel project in GPLv3 license
     - support any physic memory size up to 4 GiB
     - buddy system
     ```
+
         Memory Map
-        ┌──────────┬────────┬─────────────┬──────────────────────────────────┬──────────┐
-        │ reserved ┼ kernel ┼ pages table ┼        memory for kmalloc        ┼ reserved │          
-        └──────────┴────────┴─────────────┴──────────────────────────────────┴──────────┘
-                                     normal_base
+        ┌──────────┬────────┬───────────────┬─────────────────────────────────┬──────────┐
+        │ reserved ┼ kernel ┼ frames table  ┼       memory for kmalloc        ┼ reserved │          
+        └──────────┴────────┴───────────────┴─────────────────────────────────┴──────────┘
+                          ker_end      normal_base
     ```
 
 ## Tool-Chain

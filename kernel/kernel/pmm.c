@@ -5,9 +5,9 @@ normal_mem_t normal_mem; // global variable storing normal memory zone informati
 
 /**
  * Memory Map
- * ┌──────────┬────────┬─────────────┬──────────────────────────────────┬──────────┐
- * │ reserved ┼ kernel ┼ pages table ┼        memory for kmalloc        ┼ reserved │          
- * └──────────┴────────┴─────────────┴──────────────────────────────────┴──────────┘
+ * ┌──────────┬────────┬───────────────┬──────────────────────────────────┬──────────┐
+ * │ reserved ┼ kernel ┼ frames table  ┼        memory for kmalloc        ┼ reserved │          
+ * └──────────┴────────┴───────────────┴──────────────────────────────────┴──────────┘
  *                   ker_end      normal_base
  * */
 
@@ -37,8 +37,8 @@ void show_memory_map(){
 
 void print_free_buddy_blocks(){
     uint32_t* free_lists = normal_mem.free_lists;
-    page_t* pages = normal_mem.pages;
-    uint32_t len = normal_mem.pages_number;
+    page_frame_t* pages = normal_mem.frames;
+    uint32_t len = normal_mem.frames_number;
     uint32_t total_pages_count = 0;
     for(int i = 0; i < BUDDY_MAXLEVEL; ++i){
         uint32_t cur = free_lists[i];
@@ -46,7 +46,7 @@ void print_free_buddy_blocks(){
         while(cur!= len){
             total_pages_count += (1 << i);
             printf("%X ", cur);
-            cur = pages[cur].next_page;
+            cur = pages[cur].next_frame;
         }
         printf("\n");
     }
@@ -77,47 +77,47 @@ void init_normal_mem_zone() {
             // availiable is [0x00F15000, 0x07FDFFFF]
             
 
-            uint32_t pages_number = length/(PAGE_SIZE + sizeof(page_t)) - 1;
+            uint32_t frames_number = length/(PAGE_FRAME_SIZE + sizeof(page_frame_t)) - 1;
             
-            page_t* pages = (page_t*) base_addr; // page table follows kernel end
+            page_frame_t* pages = (page_frame_t*) base_addr; // page table follows kernel end
 
-            normal_mem.pages = pages;
+            normal_mem.frames = pages;
 
-            uint32_t mem_base = base_addr + pages_number * sizeof(page_t); // allocate memory for pages table
+            uint32_t mem_base = base_addr + frames_number * sizeof(page_frame_t); // allocate memory for pages table
             mem_base = (mem_base + ALIGN_MASK_HELPER) & ALIGN_MASK; // next sector is availiable normal memory, align for 4K
 
             normal_mem.base = mem_base;
-            normal_mem.length = pages_number * PAGE_SIZE;
-            normal_mem.pages_number = pages_number; 
+            normal_mem.length = frames_number * PAGE_FRAME_SIZE;
+            normal_mem.frames_number = frames_number; 
 
 
 
             for (uint32_t i = 0; i < BUDDY_MAXLEVEL; ++i){
-                normal_mem.free_lists[i] = pages_number;
+                normal_mem.free_lists[i] = frames_number;
             }
 
-            for (uint32_t i = 0; i < pages_number; ++i) {
-                pages[i].flags = 0 | PAGE_ALLOCATED;
+            for (uint32_t i = 0; i < frames_number; ++i) {
+                pages[i].flags = 0 | PAGE_FRAME_ALLOCATED;
                 pages[i].level = 0;
                 pages[i].index = i;
-                pages[i].next_page = pages_number;
-                pages[i].prev_page = pages_number;
+                pages[i].next_frame = frames_number;
+                pages[i].prev_frame = frames_number;
             } 
             
             uint32_t block_page_size = 1 << (BUDDY_MAXLEVEL - 1);
             uint32_t block_level = BUDDY_MAXLEVEL - 1;
-            for (uint32_t i = 0; i < pages_number; i += block_page_size) {
-                while(i > pages_number - block_page_size){
+            for (uint32_t i = 0; i < frames_number; i += block_page_size) {
+                while(i > frames_number - block_page_size){
                     block_page_size /= 2;
                     --block_level;
                 }
                 
-                pages[i].flags = 0 | PAGE_BLOCK_HEAD;
+                pages[i].flags = 0 | PAGE_FRAME_BLOCK_HEAD;
                 pages[i].level = block_level;
 
                 uint32_t tmp = normal_mem.free_lists[block_level];
-                pages[i].next_page = tmp;
-                pages[tmp].prev_page = i;
+                pages[i].next_frame = tmp;
+                pages[tmp].prev_frame = i;
                 normal_mem.free_lists[block_level] = i;
 
             }
@@ -128,54 +128,54 @@ void init_normal_mem_zone() {
 
 }
 
-void* kmalloc(uint32_t byte_size) {
-    uint32_t page_size = byte_size / PAGE_SIZE + ((byte_size % PAGE_SIZE) > 0);
-    uint32_t start_page = palloc(page_size);
-    if(start_page == normal_mem.pages_number) {
+void* physic_malloc(uint32_t byte_size) {
+    uint32_t frame_page_number = byte_size / PAGE_FRAME_SIZE + ((byte_size % PAGE_FRAME_SIZE) > 0);
+    uint32_t start_page = frame_alloc(frame_page_number);
+    if(start_page == normal_mem.frames_number) {
         return (void*) 0 ;
     }
     else {
-        return (void*) (normal_mem.base + start_page * PAGE_SIZE);
+        return (void*) (normal_mem.base + start_page * PAGE_FRAME_SIZE);
     }
 }
 
-inline uint32_t palloc(uint32_t page_size) {
-    uint32_t level = next_power_of_2(page_size);
+inline uint32_t frame_alloc(uint32_t frame_page_number) {
+    uint32_t level = next_power_of_2(frame_page_number);
     level = power_of_2(level);
-    return buddy_system_get_page_block(level);
+    return buddy_system_get_frame_page_block(level);
 }
 
 
 // get page block in specific level
-inline uint32_t buddy_system_get_page_block(uint32_t level) {
+inline uint32_t buddy_system_get_frame_page_block(uint32_t level) {
     uint32_t current_level = level;
     uint32_t* free_lists = normal_mem.free_lists;
-    uint32_t pages_number = normal_mem.pages_number;
-    page_t* pages = normal_mem.pages;
+    uint32_t frames_number = normal_mem.frames_number;
+    page_frame_t* pages = normal_mem.frames;
     // find availiable level
-    while(current_level < BUDDY_MAXLEVEL && free_lists[current_level] == pages_number)
+    while(current_level < BUDDY_MAXLEVEL && free_lists[current_level] == frames_number)
         ++current_level;
     if(current_level == BUDDY_MAXLEVEL)
-        return pages_number;
+        return frames_number;
 
     uint32_t page_index = free_lists[current_level];
-    free_lists[current_level] = pages[page_index].next_page;
+    free_lists[current_level] = pages[page_index].next_frame;
     // printf("current level: %d\n", current_level);
     while(current_level > level) {
         --current_level;
         uint32_t right = page_index ^ (1 << current_level);
         pages[right].level = current_level;
-        pages[free_lists[current_level]].prev_page = right;
-        pages[right].next_page = free_lists[current_level];
-        pages[right].flags = 0 | PAGE_BLOCK_HEAD;
+        pages[free_lists[current_level]].prev_frame = right;
+        pages[right].next_frame = free_lists[current_level];
+        pages[right].flags = 0 | PAGE_FRAME_BLOCK_HEAD;
         free_lists[current_level] = right;
     }
 
-    pages[page_index].flags = PAGE_ALLOCATED + PAGE_BLOCK_HEAD;
+    pages[page_index].flags = PAGE_FRAME_ALLOCATED + PAGE_FRAME_BLOCK_HEAD;
     pages[page_index].level = level;
     
-    pages[page_index].prev_page = pages_number;
-    pages[page_index].next_page = pages_number;
+    pages[page_index].prev_frame = frames_number;
+    pages[page_index].next_frame = frames_number;
 
     return page_index;
 }
@@ -183,20 +183,20 @@ inline uint32_t buddy_system_get_page_block(uint32_t level) {
 
 
 
-uint32_t kfree(void* addr) {
+uint32_t physic_free(void* addr) {
     if(addr == 0) return 0;
     uint32_t base = normal_mem.base;
-    uint32_t page_index = ((uint32_t)addr - base) / PAGE_SIZE;
+    uint32_t page_index = ((uint32_t)addr - base) / PAGE_FRAME_SIZE;
     
-    return buddy_system_free_page_block(page_index);
+    return buddy_system_free_frame_page_block(page_index);
 }
 
-inline uint32_t buddy_system_free_page_block(uint32_t page_index) {
-    uint32_t pages_number = normal_mem.pages_number;
-    page_t* pages = normal_mem.pages;
+inline uint32_t buddy_system_free_frame_page_block(uint32_t page_index) {
+    uint32_t frames_number = normal_mem.frames_number;
+    page_frame_t* pages = normal_mem.frames;
     uint32_t* free_lists = normal_mem.free_lists;
     
-    if(page_index >= pages_number || (pages[page_index].flags & PAGE_BLOCK_HEAD) == 0 || (pages[page_index].flags & PAGE_BLOCK_HEAD) == 0)
+    if(page_index >= frames_number || (pages[page_index].flags & PAGE_FRAME_BLOCK_HEAD) == 0 || (pages[page_index].flags & PAGE_FRAME_BLOCK_HEAD) == 0)
         return 0;
     uint32_t level = pages[page_index].level;
 
@@ -204,17 +204,17 @@ inline uint32_t buddy_system_free_page_block(uint32_t page_index) {
 
     while(level < BUDDY_MAXLEVEL - 1 
     && level == pages[buddy_index].level 
-    && pages[buddy_index].flags ==  PAGE_BLOCK_HEAD) {
-        uint32_t prev = pages[buddy_index].prev_page;
-        uint32_t next = pages[buddy_index].next_page;
-        if(prev == pages_number){
+    && pages[buddy_index].flags ==  PAGE_FRAME_BLOCK_HEAD) {
+        uint32_t prev = pages[buddy_index].prev_frame;
+        uint32_t next = pages[buddy_index].next_frame;
+        if(prev == frames_number){
             free_lists[level] = next;
         }
         else{
-            pages[prev].next_page = next;
+            pages[prev].next_frame = next;
         }
-        if(next < pages_number){
-            pages[next].prev_page = prev;
+        if(next < frames_number){
+            pages[next].prev_frame = prev;
         }
     
 
@@ -223,20 +223,20 @@ inline uint32_t buddy_system_free_page_block(uint32_t page_index) {
             buddy_index = page_index;
             page_index = tmp;
         }
-        pages[buddy_index].flags =  PAGE_ALLOCATED;
+        pages[buddy_index].flags =  PAGE_FRAME_ALLOCATED;
         pages[buddy_index].level = 0;
 
         pages[page_index].level = ++level;
         buddy_index = page_index ^ (1<<level);
     }
 
-    pages[page_index].flags = PAGE_BLOCK_HEAD;
+    pages[page_index].flags = PAGE_FRAME_BLOCK_HEAD;
     pages[page_index].level = level;
     uint32_t tmp = free_lists[level];
-    pages[page_index].next_page = free_lists[level];
-    if(tmp < pages_number)
-        pages[tmp].prev_page = page_index;
-    pages[page_index].prev_page = pages_number;
+    pages[page_index].next_frame = free_lists[level];
+    if(tmp < frames_number)
+        pages[tmp].prev_frame = page_index;
+    pages[page_index].prev_frame = frames_number;
     free_lists[level] = page_index;
 
     return 1;
