@@ -76,4 +76,6 @@ typedef struct mmap_entry_t {
 
 extern multiboot_t* global_multiboot_ptr;
 
+extern multiboot_t* global_multiboot_ptr_tmp;
+
 #endif // MULTIBOOT_H

@@ -7,16 +7,21 @@ A 32 bits X86 OS kernel project in GPLv3 license
 ## Feature
 - Multiboot standard
 - Physic memory management
-    - support any physic memory size up to 4 GiB
+    - support physic memory size up to 896MB (range from ```0xC000000``` to ```0xFFFFFFFF```)
     - buddy system
-    ```
 
-        Memory Map
+    ```
+        physic Memory Map
         ┌──────────┬────────┬───────────────┬─────────────────────────────────┬──────────┐
         │ reserved ┼ kernel ┼ frames table  ┼       memory for kmalloc        ┼ reserved │          
         └──────────┴────────┴───────────────┴─────────────────────────────────┴──────────┘
                           ker_end      normal_base
     ```
+
+- Virtual memory management
+    - paging
+        - linux-like mapping 
+
 
 ## Tool-Chain
 

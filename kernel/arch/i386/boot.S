@@ -12,37 +12,42 @@
 .long FLAGS
 .long CHECKSUM
 
-# Reserve a stack for the initial thread.
-.section .bss
+
+# Reserve a stack for temporary stack
+.section .init.data
 .align 16
 stack_bottom:
-.skip 32768 # 32 KiB
+.skip 1024 # 1 KiB
 stack_top:
+
+# The kernel entry point
+.section .init.text
+
+# multiboot information pointer before paging
+.global global_multiboot_ptr_tmp
+global_multiboot_ptr_tmp:
 .skip 4
 
-# multiboot information
-.global global_multiboot_ptr
-global_multiboot_ptr:
-.skip 4
-
-# The kernel entry point.
-.section .text
 .global _start
 .type _start, @function
 _start:
 	# init current stack
 	movl $stack_top, %esp
 	# set multiboot ptr, copy from ebx
-	mov %ebx, global_multiboot_ptr
-
-	# Call the global constructors.
-	call _init
+	mov %ebx, global_multiboot_ptr_tmp
 
 	# Transfer control to the main kernel.
-	call kernel_main
+	call kernel_main_init
 
-	# Hang if kernel_main unexpectedly returns.
+	# Hang if kernel unexpectedly returns.
 	cli
 1:	hlt
 	jmp 1b
-.size _start, . - _start
+
+
+.section .text
+# multiboot information pointer after paging
+.global global_multiboot_ptr
+global_multiboot_ptr:
+.skip 4
+

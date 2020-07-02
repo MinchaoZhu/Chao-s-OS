@@ -11,11 +11,19 @@
 - a timer interrupt handler entry which can be assigned by user
 - tty cursor move
 - add surport for ```%x``` and ```%X```
-- pages table
+- frame table
 - physic memory management: buddy system
-    - physic_malloc(size_t size_in_bytes) : acquire a contigious physic memory
-    - physic_free(void* pointer) : free a allocated memory from kmalloc 
-- support for any memory size less than 4 GiB
+    - physic_malloc(size_t size_in_bytes) : acquire a contigious physic memory in pages
+    - physic_free(void* pointer) : free a allocated memory from physic_free 
+- support for any memory size less than 896 MiB
+- virtual memory space and paging
+
+### Change
+- Change the image layout in order to support linux-like virtual memory mapping
+    - boot.S
+    - linker.ld
+    - add kernel_main_init() before kernel_main()
+
 
 ### Fixed
 - bug: int tty.c, output bug of terminal_roll()
