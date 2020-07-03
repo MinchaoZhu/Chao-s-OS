@@ -17,12 +17,16 @@
     - physic_free(void* pointer) : free a allocated memory from physic_free 
 - support for any memory size less than 896 MiB
 - virtual memory space and paging
+- add surport for ```%0x```, ```%0X```, ```%08x```, ```%08X```, ```%8x```, ```%8X```
+- add surport for ```%#x```, ```%#X```, ```%#0x```, ```%#0X```, ```%#08x```, ```%#08X```, ```%#8x```, ```%#8X```
+
 
 ### Change
 - Change the image layout in order to support linux-like virtual memory mapping
     - boot.S
     - linker.ld
     - add kernel_main_init() before kernel_main()
+- Port the pmm.c into virtual space, now kernel can allocate pages in virtual space and get the physic address
 
 
 ### Fixed

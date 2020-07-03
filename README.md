@@ -2,7 +2,7 @@
 
 A 32 bits X86 OS kernel project in GPLv3 license
 - The output image of kernel is in Multiboot standard
-- You can loaded it by qemu/bochs or other simulator.
+- You can loaded it by qemu/bochs or other emulator.
 
 ## Feature
 - Multiboot standard
