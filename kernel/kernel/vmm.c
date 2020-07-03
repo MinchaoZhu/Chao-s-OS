@@ -4,7 +4,7 @@
 #include <string.h>
 
 __attribute__((aligned(4096))) page_directory_t pgd_k[1024];
-__attribute__((aligned(4096))) static page_t tables[KERNEL_NORMAL_ZONE_DIRECTORY_SIZE + 1][1024];
+__attribute__((aligned(4096))) static page_t tables[KERNEL_NORMAL_ZONE_DIRECTORY_SIZE][1024];
 extern uint32_t* pt0;
 
 void init_vmm(void) {
@@ -47,10 +47,10 @@ void map(page_directory_t* pd, uint32_t va, uint32_t pa, uint32_t flags) {
     // page table entry index
     uint32_t pte_index = PTE_INDEX(va);
 
-    page_t* table = pd[pgd_index];
+    page_t* table = (page_t*) ((uint32_t) pd[pgd_index] & PAGE_MASK);
     if(!table) {
         // if such entry doesn't exist
-        table = (page_t*) physic_malloc(sizeof(PAGE_SIZE));
+        table = (page_t*) physic_alloc(sizeof(PAGE_SIZE));
         pd[pgd_index] = table;
         table = (page_t*) ((uint32_t) table + PAGE_OFFSET);
         memset(table, 0, PAGE_SIZE);
@@ -66,10 +66,10 @@ void map(page_directory_t* pd, uint32_t va, uint32_t pa, uint32_t flags) {
 }
 
 void unmap(page_directory_t* pd, uint32_t va) {
-    uint32_t pdg_index = PGD_INDEX(va);
+    uint32_t pgd_index = PGD_INDEX(va);
     uint32_t pte_index = PTE_INDEX(va);
     
-    page_t* table = pd[pdg_index];
+    page_t* table = (page_t*) ((uint32_t) pd[pgd_index] & PAGE_MASK);
     if(!table)
         return;
 
@@ -80,10 +80,10 @@ void unmap(page_directory_t* pd, uint32_t va) {
 }
 
 uint32_t get_mapping(page_directory_t* pd, uint32_t va, uint32_t* pa) {
-    uint32_t pdg_index = PGD_INDEX(va);
+    uint32_t pgd_index = PGD_INDEX(va);
     uint32_t pte_index = PTE_INDEX(va);
     
-    page_t* table = pd[pdg_index];
+    page_t* table = (page_t*) ((uint32_t) pd[pgd_index] & PAGE_MASK);
     if(!table)
         return 0;
     

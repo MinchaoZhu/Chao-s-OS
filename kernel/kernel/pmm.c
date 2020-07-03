@@ -1,26 +1,28 @@
 #include "kernel/pmm.h" // show_memory_map
 #include <stdio.h> // printf
-
+#include "kernel/vmm.h"
 normal_mem_t normal_mem; // global variable storing normal memory zone information
 
 /**
  * Memory Map
- * ┌──────────┬────────┬───────────────┬──────────────────────────────────┬──────────┐
- * │ reserved ┼ kernel ┼ frames table  ┼        memory for kmalloc        ┼ reserved │          
- * └──────────┴────────┴───────────────┴──────────────────────────────────┴──────────┘
+ * ┌──────────┬────────┬───────────────┬───────────────────────────────────┬──────────┐
+ * │ reserved ┼ kernel ┼ frames table  ┼        memory for frame_alloc     ┼ reserved │          
+ * └──────────┴────────┴───────────────┴───────────────────────────────────┴──────────┘
  *                   ker_end      normal_base
  * */
 
 /**
  * Buddy System
  * 1. get page block
+ *      - void* physic_alloc(uint32_t byte_size) : return begin physic addr of meomory block
+ *      - page_frame_t* frame_alloc(uint32_t frame_page_number) : return a page_frame_t object indicating the allocated pages 
  * 2. free page block
- * 
- * 
+ *      - uint32_t physic_free(void* physic_addr) : free the pages allocated according to begin addr of pages
+ *      - uint32_t frame_free : free the pages allocated by frame_alloc
  * */
 void show_memory_map(){
     // get mmap info from multiboot
-    uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr;
+    uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr + PAGE_OFFSET;
     uint32_t mmap_length = global_multiboot_ptr -> mmap_length;
 
     printf("Memory map:\n");
@@ -40,6 +42,8 @@ void print_free_buddy_blocks(){
     page_frame_t* pages = normal_mem.frames;
     uint32_t len = normal_mem.frames_number;
     uint32_t total_pages_count = 0;
+    pages = (page_frame_t*) ((uint32_t) pages + PAGE_OFFSET);
+
     for(int i = 0; i < BUDDY_MAXLEVEL; ++i){
         uint32_t cur = free_lists[i];
         printf("Level %d:", i);
@@ -54,7 +58,7 @@ void print_free_buddy_blocks(){
 }
 
 void init_normal_mem_zone() {
-    uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr;
+    uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr + + PAGE_OFFSET;
     uint32_t mmap_length = global_multiboot_ptr -> mmap_length;
 
     mmap_entry_t *mmap = (mmap_entry_t *) mmap_addr;
@@ -66,12 +70,10 @@ void init_normal_mem_zone() {
             uint32_t length = mmap -> length_high;
             length = (length << 16) + mmap -> length_low;
 
-            uint32_t end_addr = base_addr + length;
-            base_addr = (uint32_t )kernel_end;
-
+            base_addr = (uint32_t )kernel_end - PAGE_OFFSET;
+            uint32_t end_addr = base_addr +  length ;
             // base_addr = base_addr & ALIGN_MASK; // align for 4k
             // end_addr  = end_addr &  ALIGN_MASK; // align for 4k
-            length = end_addr - base_addr;
             // [base_addr, end_addr)
             // [0x00F15000, 0x07FE0000)
             // availiable is [0x00F15000, 0x07FDFFFF]
@@ -79,7 +81,7 @@ void init_normal_mem_zone() {
 
             uint32_t frames_number = length/(PAGE_FRAME_SIZE + sizeof(page_frame_t)) - 1;
             
-            page_frame_t* pages = (page_frame_t*) base_addr; // page table follows kernel end
+            page_frame_t* pages = (page_frame_t*) base_addr; // physic addr: page table follows kernel end
 
             normal_mem.frames = pages;
 
@@ -96,12 +98,16 @@ void init_normal_mem_zone() {
                 normal_mem.free_lists[i] = frames_number;
             }
 
+
+            pages = (page_frame_t*) ((uint32_t) pages + PAGE_OFFSET); // virtual addr
+
             for (uint32_t i = 0; i < frames_number; ++i) {
                 pages[i].flags = 0 | PAGE_FRAME_ALLOCATED;
                 pages[i].level = 0;
                 pages[i].index = i;
                 pages[i].next_frame = frames_number;
                 pages[i].prev_frame = frames_number;
+                pages[i].physic_addr = mem_base + i * PAGE_FRAME_SIZE;
             } 
             
             uint32_t block_page_size = 1 << (BUDDY_MAXLEVEL - 1);
@@ -128,18 +134,15 @@ void init_normal_mem_zone() {
 
 }
 
-void* physic_malloc(uint32_t byte_size) {
+// allocate a contigious memory block size is at least byte_size, return the head page' physic address 
+void* physic_alloc(uint32_t byte_size) {
     uint32_t frame_page_number = byte_size / PAGE_FRAME_SIZE + ((byte_size % PAGE_FRAME_SIZE) > 0);
-    uint32_t start_page = frame_alloc(frame_page_number);
-    if(start_page == normal_mem.frames_number) {
-        return (void*) 0 ;
-    }
-    else {
-        return (void*) (normal_mem.base + start_page * PAGE_FRAME_SIZE);
-    }
+    page_frame_t* ret_page = frame_alloc(frame_page_number);
+    return ret_page->physic_addr;
 }
 
-inline uint32_t frame_alloc(uint32_t frame_page_number) {
+// allocate a contigious pages block, return the struct page_frame_t
+page_frame_t* frame_alloc(uint32_t frame_page_number) {
     uint32_t level = next_power_of_2(frame_page_number);
     level = power_of_2(level);
     return buddy_system_get_frame_page_block(level);
@@ -147,16 +150,19 @@ inline uint32_t frame_alloc(uint32_t frame_page_number) {
 
 
 // get page block in specific level
-inline uint32_t buddy_system_get_frame_page_block(uint32_t level) {
+inline page_frame_t* buddy_system_get_frame_page_block(uint32_t level) {
     uint32_t current_level = level;
     uint32_t* free_lists = normal_mem.free_lists;
     uint32_t frames_number = normal_mem.frames_number;
     page_frame_t* pages = normal_mem.frames;
+    pages = (page_frame_t*) ((uint32_t) pages + PAGE_OFFSET);
     // find availiable level
     while(current_level < BUDDY_MAXLEVEL && free_lists[current_level] == frames_number)
         ++current_level;
-    if(current_level == BUDDY_MAXLEVEL)
-        return frames_number;
+
+    // if no free pages block    
+    if(current_level >= BUDDY_MAXLEVEL)
+        return (page_frame_t*) 0;
 
     uint32_t page_index = free_lists[current_level];
     free_lists[current_level] = pages[page_index].next_frame;
@@ -177,23 +183,30 @@ inline uint32_t buddy_system_get_frame_page_block(uint32_t level) {
     pages[page_index].prev_frame = frames_number;
     pages[page_index].next_frame = frames_number;
 
-    return page_index;
+
+    return (page_frame_t*) ((uint32_t)&pages[page_index] - PAGE_OFFSET);
 }
 
 
 
-
-uint32_t physic_free(void* addr) {
-    if(addr == 0) return 0;
+uint32_t physic_free(void* physic_addr) {
+    if(physic_addr == 0) return 0;
     uint32_t base = normal_mem.base;
-    uint32_t page_index = ((uint32_t)addr - base) / PAGE_FRAME_SIZE;
-    
+    uint32_t page_index = ((uint32_t)physic_addr - base) / PAGE_FRAME_SIZE;
     return buddy_system_free_frame_page_block(page_index);
 }
+
+uint32_t frame_free(page_frame_t* page) {
+    if(page == 0) return 0;
+    page = (page_frame_t*) ((uint32_t) page + PAGE_OFFSET); // virtual addr
+    return buddy_system_free_frame_page_block(page->index);
+}
+
 
 inline uint32_t buddy_system_free_frame_page_block(uint32_t page_index) {
     uint32_t frames_number = normal_mem.frames_number;
     page_frame_t* pages = normal_mem.frames;
+    pages = (page_frame_t*) ((uint32_t) pages + PAGE_OFFSET);
     uint32_t* free_lists = normal_mem.free_lists;
     
     if(page_index >= frames_number || (pages[page_index].flags & PAGE_FRAME_BLOCK_HEAD) == 0 || (pages[page_index].flags & PAGE_FRAME_BLOCK_HEAD) == 0)

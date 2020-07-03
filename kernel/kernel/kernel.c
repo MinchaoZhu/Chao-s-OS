@@ -10,7 +10,7 @@
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
-
+extern page_t tables[KERNEL_NORMAL_ZONE_DIRECTORY_SIZE + 1][1024];
 __attribute__((aligned(4096))) char kernel_stack[STACK_SIZE];
 
 
@@ -53,17 +53,33 @@ __attribute__((section(".init.text"))) void kernel_main_init(void) {
 void kernel_main(void) {
 	pgd_k[0] = 0; // reset the tmp directory
 	switch_pgd(((uint32_t)&pgd_k) - PAGE_OFFSET);
+
 	asm volatile ("call _init");  // call global constructor
 	init_gdt();
 	init_idt();
-
 	terminal_initialize();
-	
-	// init_normal_mem_zone();
+
+	init_normal_mem_zone();
+
+	// printf("%d\n", 12461638);
+	// printf("%x\n", 12461638);
+	// printf("%X\n", 12461638);
+	// printf("%0x\n", 12461638);
+	// printf("%0X\n", 12461638);
+	// printf("%8x\n", 12461638);
+	// printf("%8X\n", 12461638);
+	// printf("%08x\n", 12461638);
+	// printf("%08X\n", 12461638);
+	// printf("%#x\n", 12461638);
+	// printf("%#X\n", 12461638);
+	// printf("%#0x\n", 12461638);
+	// printf("%#0X\n", 12461638);
+	// printf("%#8x\n", 12461638);
+	// printf("%#8X\n", 12461638);
+	// printf("%#08x\n", 12461638);
+	// printf("%#08X\n", 12461638);
+	// printf("12461638\n", 12461638);
 
 	asm volatile ("sti"); // active interrupt
-
-	printf("hello paging\n");
-    
 	while(1);
 }

@@ -31,6 +31,7 @@
 typedef struct page_frame_t {
     uint8_t flags; // indicate status of the page
     uint8_t level; // indicate size: 2^level after it belongs to it
+    uint32_t physic_addr; // physic address of this frame
     uint32_t index; // indicate relative index in pages array
     uint32_t prev_frame; //indicate index of previous unallocate pages block in the free list
     uint32_t next_frame; //indicate index of next unallocate pages block in the free list
@@ -60,14 +61,15 @@ void show_memory_map();
 void init_normal_mem_zone();
 
 // allocate physic memory
-void* physic_malloc(uint32_t byte_size);
-
+void* physic_alloc(uint32_t byte_size);
 // allocate pages
-inline uint32_t frame_alloc(uint32_t page_size);
+page_frame_t* frame_alloc(uint32_t page_size);
 
 
 // free physic memory
-uint32_t physic_free(void* addr);
+uint32_t physic_free(void* physic_addr);
+// free pages
+uint32_t frame_free(page_frame_t* page);
 
 
 inline uint32_t is_power_of_2 (uint32_t n);
@@ -79,7 +81,7 @@ inline uint32_t power_of_2 (uint32_t n);
 /** 
  * return first page index
  * */
-inline uint32_t buddy_system_get_frame_page_block(uint32_t level);
+inline page_frame_t* buddy_system_get_frame_page_block(uint32_t level);
 
 inline uint32_t buddy_system_free_frame_page_block(uint32_t page_index);
 
