@@ -54,11 +54,11 @@ void print_free_buddy_blocks(){
         }
         printf("\n");
     }
-    // printf("Total pages is %X\n", total_pages_count);
+    printf("Total pages is %X\n", total_pages_count);
 }
 
 void init_normal_mem_zone() {
-    uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr + + PAGE_OFFSET;
+    uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr + PAGE_OFFSET;
     uint32_t mmap_length = global_multiboot_ptr -> mmap_length;
 
     mmap_entry_t *mmap = (mmap_entry_t *) mmap_addr;
@@ -69,18 +69,17 @@ void init_normal_mem_zone() {
 
             uint32_t length = mmap -> length_high;
             length = (length << 16) + mmap -> length_low;
-
-            base_addr = (uint32_t )kernel_end - PAGE_OFFSET;
             uint32_t end_addr = base_addr +  length ;
+            base_addr = (uint32_t )kernel_end - PAGE_OFFSET;
+
             // base_addr = base_addr & ALIGN_MASK; // align for 4k
             // end_addr  = end_addr &  ALIGN_MASK; // align for 4k
             // [base_addr, end_addr)
             // [0x00F15000, 0x07FE0000)
             // availiable is [0x00F15000, 0x07FDFFFF]
-            
+            length = end_addr - base_addr;
 
             uint32_t frames_number = length/(PAGE_FRAME_SIZE + sizeof(page_frame_t)) - 1;
-            
             page_frame_t* pages = (page_frame_t*) base_addr; // physic addr: page table follows kernel end
 
             normal_mem.frames = pages;
@@ -92,7 +91,10 @@ void init_normal_mem_zone() {
             normal_mem.length = frames_number * PAGE_FRAME_SIZE;
             normal_mem.frames_number = frames_number; 
 
-
+            // printf("base: %#08x\n", mem_base);
+            // printf("len: %#08x\n", normal_mem.length);
+            // printf("nums: %#08x\n", frames_number);
+            // printf("end: %#08x\n", mem_base + normal_mem.length);
 
             for (uint32_t i = 0; i < BUDDY_MAXLEVEL; ++i){
                 normal_mem.free_lists[i] = frames_number;
@@ -108,6 +110,7 @@ void init_normal_mem_zone() {
                 pages[i].next_frame = frames_number;
                 pages[i].prev_frame = frames_number;
                 pages[i].physic_addr = mem_base + i * PAGE_FRAME_SIZE;
+                pages[i].allocator = 0;
             } 
             
             uint32_t block_page_size = 1 << (BUDDY_MAXLEVEL - 1);
@@ -138,6 +141,9 @@ void init_normal_mem_zone() {
 void* physic_alloc(uint32_t byte_size) {
     uint32_t frame_page_number = byte_size / PAGE_FRAME_SIZE + ((byte_size % PAGE_FRAME_SIZE) > 0);
     page_frame_t* ret_page = frame_alloc(frame_page_number);
+    if(ret_page == 0)
+        return 0;
+    ret_page = (page_frame_t*)((uint32_t) ret_page + PAGE_OFFSET);
     return ret_page->physic_addr;
 }
 

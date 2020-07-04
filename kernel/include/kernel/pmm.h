@@ -10,7 +10,6 @@
  * */
 
 #include "kernel/multiboot.h"
-
 // maximum memory allocation size is 2^10 pages = 4 MiB
 #define BUDDY_MAXLEVEL 11
 
@@ -35,8 +34,8 @@ typedef struct page_frame_t {
     uint32_t index; // indicate relative index in pages array
     uint32_t prev_frame; //indicate index of previous unallocate pages block in the free list
     uint32_t next_frame; //indicate index of next unallocate pages block in the free list
+    uint32_t allocator; // address of the slice alloc, not empty if this page is assigned for an allocator
 } __attribute__((packed)) page_frame_t;
-
 
 typedef struct normal_mem_t {
     uint32_t base; // physic start address
@@ -60,9 +59,9 @@ void show_memory_map();
 // init normal memory zone
 void init_normal_mem_zone();
 
-// allocate physic memory
+// allocate physic memory, return physic addr of the first page
 void* physic_alloc(uint32_t byte_size);
-// allocate pages
+// allocate pages, return physic page_t address
 page_frame_t* frame_alloc(uint32_t page_size);
 
 
