@@ -80,7 +80,7 @@ For cross gcc compiler, please refers to https://wiki.osdev.org/Building_GCC
     - Dynamic Allocation: kmalloc/free
         - slabs-like mechanism
 
-[!image](https://github.com/MinchaoZhu/Chao-s-OS/blob/master/img/mem.svg)
+[!image](https://raw.githubusercontent.com/MinchaoZhu/Chao-s-OS/master/img/mem.svg)
 2. PMM
 - After kernel image, a page_frame array will be set. Each page entry linearly maps to a page in normal zone. 
 - Kernel can use method from PMM to request one or more contigious pages.
