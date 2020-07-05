@@ -17,9 +17,11 @@
     - physic_free(void* pointer) : free a allocated memory from physic_free 
 - support for any memory size less than 896 MiB
 - virtual memory space and paging
-- add surport for ```%0x```, ```%0X```, ```%08x```, ```%08X```, ```%8x```, ```%8X```
-- add surport for ```%#x```, ```%#X```, ```%#0x```, ```%#0X```, ```%#08x```, ```%#08X```, ```%#8x```, ```%#8X```
-
+- printf: add surport for ```%0x```, ```%0X```, ```%08x```, ```%08X```, ```%8x```, ```%8X```
+- printf: add surport for ```%#x```, ```%#X```, ```%#0x```, ```%#0X```, ```%#08x```, ```%#08X```, ```%#8x```, ```%#8X```
+- dynamic memory allocation
+    - kmalloc(): slabs-like memory slice allocation system
+    - kfree()
 
 ### Change
 - Change the image layout in order to support linux-like virtual memory mapping
@@ -31,6 +33,7 @@
 
 ### Fixed
 - bug: int tty.c, output bug of terminal_roll()
+
 
 ## [0.0.1] - 2020-06-22
 ### Added
