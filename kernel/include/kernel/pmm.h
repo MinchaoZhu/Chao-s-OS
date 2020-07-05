@@ -71,18 +71,6 @@ uint32_t physic_free(void* physic_addr);
 uint32_t frame_free(page_frame_t* page);
 
 
-inline uint32_t is_power_of_2 (uint32_t n);
-inline uint32_t next_power_of_2 (uint32_t n);
-inline uint32_t power_of_2 (uint32_t n);
-
-// buddy_system
-
-/** 
- * return first page index
- * */
-inline page_frame_t* buddy_system_get_frame_page_block(uint32_t level);
-
-inline uint32_t buddy_system_free_frame_page_block(uint32_t page_index);
 
 
 #endif // INCLUDE_PMM_H

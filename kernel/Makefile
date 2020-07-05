@@ -35,6 +35,7 @@ kernel/timer.o \
 kernel/ioport.o \
 kernel/pmm.o \
 kernel/vmm.o \
+kernel/kmm.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

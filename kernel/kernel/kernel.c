@@ -7,10 +7,12 @@
 #include "kernel/multiboot.h"
 #include "kernel/pmm.h"
 #include "kernel/vmm.h"
+#include "kernel/kmm.h"
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
 extern page_t tables[KERNEL_NORMAL_ZONE_DIRECTORY_SIZE + 1][1024];
+void kernel_main(void);
 __attribute__((aligned(4096))) char kernel_stack[STACK_SIZE];
 
 
@@ -43,12 +45,8 @@ __attribute__((section(".init.text"))) void kernel_main_init(void) {
 
 	global_multiboot_ptr = (multiboot_t*)((uint32_t)global_multiboot_ptr_tmp + PAGE_OFFSET);
 	init_vmm();
-	// printf("xxx\n");
 	kernel_main();
 }
-
-
-
 
 void kernel_main(void) {
 	pgd_k[0] = 0; // reset the tmp directory
@@ -58,28 +56,11 @@ void kernel_main(void) {
 	init_gdt();
 	init_idt();
 	terminal_initialize();
-
-	init_normal_mem_zone();
-
-	// printf("%d\n", 12461638);
-	// printf("%x\n", 12461638);
-	// printf("%X\n", 12461638);
-	// printf("%0x\n", 12461638);
-	// printf("%0X\n", 12461638);
-	// printf("%8x\n", 12461638);
-	// printf("%8X\n", 12461638);
-	// printf("%08x\n", 12461638);
-	// printf("%08X\n", 12461638);
-	// printf("%#x\n", 12461638);
-	// printf("%#X\n", 12461638);
-	// printf("%#0x\n", 12461638);
-	// printf("%#0X\n", 12461638);
-	// printf("%#8x\n", 12461638);
-	// printf("%#8X\n", 12461638);
-	// printf("%#08x\n", 12461638);
-	// printf("%#08X\n", 12461638);
-	// printf("12461638\n", 12461638);
-
 	asm volatile ("sti"); // active interrupt
-	while(1);
+	init_normal_mem_zone();
+	init_kmm();
+
+
+	while(1)
+		asm volatile ("hlt"); // CPU halt;
 }

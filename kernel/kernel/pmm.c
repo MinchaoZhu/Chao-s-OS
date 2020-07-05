@@ -20,6 +20,22 @@ normal_mem_t normal_mem; // global variable storing normal memory zone informati
  *      - uint32_t physic_free(void* physic_addr) : free the pages allocated according to begin addr of pages
  *      - uint32_t frame_free : free the pages allocated by frame_alloc
  * */
+
+
+
+static inline uint32_t is_power_of_2 (uint32_t n);
+static inline uint32_t next_power_of_2 (uint32_t n);
+static inline uint32_t power_of_2 (uint32_t n);
+
+// buddy_system
+
+/** 
+ * return first page index
+ * */
+static inline page_frame_t* buddy_system_get_frame_page_block(uint32_t level);
+
+static inline uint32_t buddy_system_free_frame_page_block(uint32_t page_index);
+
 void show_memory_map(){
     // get mmap info from multiboot
     uint32_t mmap_addr = global_multiboot_ptr -> mmap_addr + PAGE_OFFSET;

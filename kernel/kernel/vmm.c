@@ -6,9 +6,7 @@
 __attribute__((aligned(4096))) page_directory_t pgd_k[1024];
 __attribute__((aligned(4096))) static page_t tables[KERNEL_NORMAL_ZONE_DIRECTORY_SIZE][1024];
 extern uint32_t* pt0;
-
 void init_vmm(void) {
-
 
     // map 0xC0000000 to 0x00000000 (virtual -> physic)
     uint32_t page_of_set_dir_index = PGD_INDEX(PAGE_OFFSET);
