@@ -23,7 +23,9 @@ A 32 bits X86 OS kernel project in GPLv3 license
         - linux-like mapping 
 - Dynamic kernel memory  allocation
     - kmalloc()
-    - kfree
+    - kfree()
+- Kernel thread: multitask
+    - thread_create(&foo, *args)
 
 ## Tool-Chain
 
@@ -105,3 +107,9 @@ Also in order to save space and increase performance, different type allocator w
 - size >= 512 bytes: bitmap. Hence for size = 512 bytes, a single page will be divided into 8 slices with 512 bytes, then the allocator uses the bitmap to manage it. Obviously manage a slice only need no more than 8 manipulate.
 - 16bytes <= size < 512 bytes: linked list bucket. Here a slice will be a 8 bits header indicating next free slice appending 64 bytes 'useful' part, if allocator-size is 64 bytes. Obviously page size is hardly a multiple of slice size, so inner fragment will occur. In this way, some space will be wasted because of 8-bits header and no more than 64 bytes inner fragment. But find a free slice and release a allocated slice will be in constant time.
 
+## Multi-Task
+
+- Impelement multi-task of kernel threads in single processor
+
+    - create a new kernel thread: thread_create(thread2, NULL);
+    - release a thread: thread_exit(pid);

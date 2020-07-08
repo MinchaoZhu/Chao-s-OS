@@ -36,6 +36,8 @@ kernel/ioport.o \
 kernel/pmm.o \
 kernel/vmm.o \
 kernel/kmm.o \
+kernel/task.o \
+kernel/schedule.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

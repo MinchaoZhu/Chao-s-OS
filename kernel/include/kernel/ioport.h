@@ -1,5 +1,5 @@
-#ifndef INCLUDE_IOPORT_H_
-#define INCLUDE_IOPORT_H_
+#ifndef KERNEL_IOPORT_H_
+#define KERNEL_IOPORT_H_
 
 #include <stdint.h>
 

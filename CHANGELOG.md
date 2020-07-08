@@ -22,6 +22,10 @@
 - dynamic memory allocation
     - kmalloc(): slabs-like memory slice allocation system
     - kfree()
+- kernel thread: multi-task
+    - task.h
+- Simple circular scheduler
+    - schedule.h
 
 ### Change
 - Change the image layout in order to support linux-like virtual memory mapping

@@ -1,5 +1,5 @@
-#ifndef _CHAOSOS_INT_H_
-#define _CHAOSOS_INT_H_
+#ifndef INTERRUPT_INT_H_
+#define INTERRUPT_INT_H_
 
 #include "kernel/idt.h"
 

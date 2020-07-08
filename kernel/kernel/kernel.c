@@ -8,6 +8,7 @@
 #include "kernel/pmm.h"
 #include "kernel/vmm.h"
 #include "kernel/kmm.h"
+#include "kernel/schedule.h"
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
@@ -59,6 +60,7 @@ void kernel_main(void) {
 	asm volatile ("sti"); // active interrupt
 	init_normal_mem_zone();
 	init_kmm();
+	init_schedule();
 
 
 	while(1)

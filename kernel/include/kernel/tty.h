@@ -1,5 +1,5 @@
-#ifndef _KERNEL_TTY_H
-#define _KERNEL_TTY_H
+#ifndef KERNEL_TTY_H_
+#define KERNEL_TTY_H_
 
 #include <stddef.h>
 #include <kernel/ioport.h>

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_VMM_H
-#define INCLUDE_VMM_H
+#ifndef KERNEL_VMM_H_
+#define KERNEL_VMM_H_
 
 #include <stdint.h>
 #include "kernel/pmm.h"

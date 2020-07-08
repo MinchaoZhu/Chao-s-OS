@@ -1,5 +1,5 @@
-#ifndef _INCLUDE_GDT_H_
-#define _INCLUDE_GDT_H_
+#ifndef KERNEL_GDT_H_
+#define KERNEL_GDT_H_
 
 #include <stdint.h>
 

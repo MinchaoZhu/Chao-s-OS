@@ -1,7 +1,8 @@
 #include "interrupt/timer.h"
 #include "kernel/ioport.h"
+#include "kernel/kmm.h"
 
-
+// frequency: [2, 1193180] 
 void init_timer(uint32_t frequency, interrupt_handler_t timer_callback){
     
     register_interrupt_handler(32, timer_callback);

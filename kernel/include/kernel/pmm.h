@@ -1,5 +1,5 @@
-#ifndef INCLUDE_PMM_H
-#define INCLUDE_PMM_H
+#ifndef KERNEL_PMM_H_
+#define KERNEL_PMM_H_
 
 /**
  * Memory Map

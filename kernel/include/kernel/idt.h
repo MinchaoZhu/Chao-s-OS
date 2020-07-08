@@ -1,5 +1,5 @@
-#ifndef INCLUDE_IDT_H
-#define INCLUDE_IDT_H
+#ifndef KERNEL_IDT_H_
+#define KERNEL_IDT_H_
 
 #include <stdint.h>
 

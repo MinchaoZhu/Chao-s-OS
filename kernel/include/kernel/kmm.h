@@ -1,5 +1,5 @@
-#ifndef INCLUDE_KMM_H_
-#define INCLUDE_KMM_H_
+#ifndef KERNEL_KMM_H_
+#define KERNEL_KMM_H_
 
 #include <stdint.h>
 #include "kernel/pmm.h"
