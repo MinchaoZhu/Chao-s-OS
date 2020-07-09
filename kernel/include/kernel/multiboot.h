@@ -61,6 +61,29 @@ typedef struct multiboot_t {
     uint32_t vbe_interface_off;
     uint32_t vbe_interface_len;
 
+    uint64_t framebuffer_addr;
+    uint32_t framebuffer_pitch;
+    uint32_t framebuffer_width;
+    uint32_t framebuffer_height;
+    uint8_t  framebuffer_bpp;
+    uint8_t  framebuffer_type;
+    union
+    {
+      struct
+      {
+        uint32_t framebuffer_palette_addr;
+        uint16_t framebuffer_palette_num_colors;
+      };
+      struct
+      {
+        uint8_t framebuffer_red_field_position;
+        uint8_t framebuffer_red_mask_size;
+        uint8_t framebuffer_green_field_position;
+        uint8_t framebuffer_green_mask_size;
+        uint8_t framebuffer_blue_field_position;
+        uint8_t framebuffer_blue_mask_size;
+      };
+    };
 } __attribute__((packed)) multiboot_t;
 
 // memory entry

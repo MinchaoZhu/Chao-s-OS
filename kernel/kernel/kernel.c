@@ -9,6 +9,7 @@
 #include "kernel/vmm.h"
 #include "kernel/kmm.h"
 #include "kernel/schedule.h"
+#include "kernel/vbe.h"
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
@@ -49,6 +50,7 @@ __attribute__((section(".init.text"))) void kernel_main_init(void) {
 	kernel_main();
 }
 
+
 void kernel_main(void) {
 	pgd_k[0] = 0; // reset the tmp directory
 	switch_pgd(((uint32_t)&pgd_k) - PAGE_OFFSET);
@@ -61,8 +63,14 @@ void kernel_main(void) {
 	init_normal_mem_zone();
 	init_kmm();
 	init_schedule();
-
+	init_vbe();
 
 	while(1)
 		asm volatile ("hlt"); // CPU halt;
 }
+
+
+
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#pragma GCC pop_options

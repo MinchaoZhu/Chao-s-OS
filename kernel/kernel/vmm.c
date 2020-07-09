@@ -49,7 +49,7 @@ void map(page_directory_t* pd, uint32_t va, uint32_t pa, uint32_t flags) {
     if(!table) {
         // if such entry doesn't exist
         table = (page_t*) physic_alloc(sizeof(PAGE_SIZE));
-        pd[pgd_index] = table;
+        pd[pgd_index] = (uint32_t) table | flags;
         table = (page_t*) ((uint32_t) table + PAGE_OFFSET);
         memset(table, 0, PAGE_SIZE);
     }
