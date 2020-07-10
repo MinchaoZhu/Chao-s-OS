@@ -62,6 +62,7 @@ void kernel_main(void) {
 	asm volatile ("sti"); // active interrupt
 	init_normal_mem_zone();
 	init_kmm();
+	init_timer();
 	init_schedule();
 	init_vbe();
 

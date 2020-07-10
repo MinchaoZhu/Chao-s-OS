@@ -26,6 +26,7 @@ A 32 bits X86 OS kernel project in GPLv3 license
     - kfree()
 - Kernel thread: multitask
     - thread_create(&foo, *args)
+- VESA video mode
 
 ## Tool-Chain
 

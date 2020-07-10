@@ -27,7 +27,7 @@
 .long FLAGS
 .long CHECKSUM
 .long 0, 0, 0, 0, 0
-.long 0 #set graphics mode
+.long 0 #set graphics mode; VESA: https://en.wikipedia.org/wiki/VESA_BIOS_Extensions
 .long 1024 #width
 .long 768  # height
 .long 32   # depth

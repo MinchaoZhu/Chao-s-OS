@@ -26,6 +26,9 @@
     - task.h
 - Simple circular scheduler
     - schedule.h
+- Change to video mode: VESA
+    - double buffering
+- Timer schedule
 
 ### Change
 - Change the image layout in order to support linux-like virtual memory mapping

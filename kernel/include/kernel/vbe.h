@@ -4,6 +4,7 @@
 
 // http://www.phatcode.net/res/221/files/vbe20.pdf
 
+
 typedef struct vbe_info_block {
    char VbeSignature[4];             // == "VESA"
    uint16_t VbeVersion;                 // == 0x0300 for VBE 3.0
@@ -41,7 +42,5 @@ typedef struct mode_info_block {
 void init_vbe(void);
 void put_pixel(uint8_t* screen,int x,int depth,int y,int pitch,uint32_t color);
 
-void task01();
-void task02();
 
 #endif // KERNEL_VBE_H_

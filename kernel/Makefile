@@ -39,6 +39,7 @@ kernel/kmm.o \
 kernel/task.o \
 kernel/schedule.o \
 kernel/vbe.o \
+kernel/math.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
