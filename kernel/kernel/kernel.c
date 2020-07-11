@@ -10,6 +10,8 @@
 #include "kernel/kmm.h"
 #include "kernel/schedule.h"
 #include "kernel/vbe.h"
+#include "gui/psf.h"
+#include "gui/terminal.h"
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
@@ -60,11 +62,16 @@ void kernel_main(void) {
 	init_idt();
 	terminal_initialize();
 	asm volatile ("sti"); // active interrupt
-	init_normal_mem_zone();
-	init_kmm();
-	init_timer();
-	init_schedule();
-	init_vbe();
+	init_normal_mem_zone(); // init memory
+	init_kmm(); // init kernel dynamic memory allocation
+	init_timer(); // init timer
+	init_schedule(); // init thread scheduler and context switch
+	init_vbe(); // init VESA graphic mode
+	init_psf(); // init psf font
+
+	init_main_terminal();
+	
+
 
 	while(1)
 		asm volatile ("hlt"); // CPU halt;

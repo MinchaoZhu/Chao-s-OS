@@ -55,9 +55,7 @@ void put_pixel(uint8_t* screen,int x,int bbs,int y,int pitch,uint32_t color) {
 }
 
 void swap_buffer() {
-    static int i = 0;
-    vbe_buffer[i + 1] = 0xab;
-    vbe_buffer[i+2] = 0xc1;
-    vbe_buffer[i++ + 3] = 0x23;
     memcpy((void*)vram, (void*)vbe_buffer, vram_size);
 }
+
+

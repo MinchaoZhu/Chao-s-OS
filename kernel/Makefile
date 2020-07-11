@@ -40,25 +40,32 @@ kernel/task.o \
 kernel/schedule.o \
 kernel/vbe.o \
 kernel/math.o \
+kernel/psf.o \
+kernel/terminal.o \
+
 
 OBJS=\
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
+$(ARCHDIR)/font.o \
 $(KERNEL_OBJS) \
+$(FONT_OBJS)\
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
+
 
 LINK_LIST=\
 $(LDFLAGS) \
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
+$(ARCHDIR)/font.o \
 $(KERNEL_OBJS) \
 $(LIBS) \
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
 
 .PHONY: all clean install install-headers install-kernel
-.SUFFIXES: .o .c .S
+.SUFFIXES: .o .c .S .psf
 
 all: chaosos.kernel
 
@@ -74,6 +81,9 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 
 .S.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
+
+.psf.o:
+	objcopy -O elf32-i386 -B i386 -I binary $< $@
 
 clean:
 	rm -f chaosos.kernel
