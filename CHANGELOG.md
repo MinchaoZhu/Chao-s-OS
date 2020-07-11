@@ -29,6 +29,9 @@
 - Change to video mode: VESA
     - double buffering
 - Timer schedule
+- Add a pc screen font(PSF): font.psf
+- GUI: terminal
+
 
 ### Change
 - Change the image layout in order to support linux-like virtual memory mapping

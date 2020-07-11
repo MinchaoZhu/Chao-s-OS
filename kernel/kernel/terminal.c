@@ -31,9 +31,6 @@ void init_main_terminal() {
     main_terminal.fc   = 0x00000000;
     main_terminal.bc   = 0x00ffffff;
 
-    for(int i = 0; i<500; ++i)
-    printf("Hello gui terminal: %d\n", i);
-
 }
 
 
