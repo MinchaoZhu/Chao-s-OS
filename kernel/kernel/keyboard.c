@@ -1,16 +1,17 @@
 #include "io/keyboard.h"
-#include <stdint.h>
 #include "io/ioport.h"
 #include "interrupt/interrupt.h"
+#include "kernel/kmm.h"
 #include <stdio.h>
+#include <stdint.h>
 
 
 uint8_t extend_flag = 0;
-const uint32_t keyboard_output_buffer_length = 512;
-uint8_t keyboard_output_buffer[keyboard_output_buffer_length];
+uint32_t keyboard_output_buffer_length = 512;
+uint8_t* keyboard_output_buffer;
 uint32_t k_index = 0;
 
-void keyboard_driver(); 
+void keyboard_input_handler(); 
 
 
 // mapping from scancode to ASCII
@@ -86,7 +87,7 @@ void init_keyboard() {
     alt_status = 0;
     caps_lock_status = 0;
     ext_scancode = 0;
-
+    keyboard_output_buffer = (uint8_t*) kmalloc(keyboard_output_buffer_length);
     register_interrupt_handler(0x21, keyboard_input_handler);
     //release register buffer
     inb(KBD_BUF_PORT);
