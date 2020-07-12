@@ -2,7 +2,7 @@
 #define KERNEL_TTY_H_
 
 #include <stddef.h>
-#include <kernel/ioport.h>
+#include "io/ioport.h"
 
 void terminal_initialize(void);
 void terminal_putchar(char c);

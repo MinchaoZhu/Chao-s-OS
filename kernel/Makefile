@@ -42,6 +42,7 @@ kernel/vbe.o \
 kernel/math.o \
 kernel/psf.o \
 kernel/terminal.o \
+kernel/keyboard.o \
 
 
 OBJS=\

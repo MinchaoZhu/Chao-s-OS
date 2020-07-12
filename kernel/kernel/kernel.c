@@ -12,6 +12,7 @@
 #include "kernel/vbe.h"
 #include "gui/psf.h"
 #include "gui/terminal.h"
+#include "io/keyboard.h"
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
@@ -68,8 +69,8 @@ void kernel_main(void) {
 	init_schedule(); // init thread scheduler and context switch
 	init_vbe(); // init VESA graphic mode
 	init_psf(); // init psf font
-
-	init_main_terminal();
+	init_main_terminal(); 
+	init_keyboard(); // load keyboard driver
 	
 
 

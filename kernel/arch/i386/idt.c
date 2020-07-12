@@ -2,7 +2,7 @@
 #include <string.h> // memset
 #include <stdio.h>  // printf
 #include "interrupt/interrupt.h"
-#include "kernel/ioport.h"
+#include "io/ioport.h"
 
 idt_entry_t idt_entries[256];
 
