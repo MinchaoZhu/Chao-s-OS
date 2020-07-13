@@ -18,12 +18,12 @@ void register_interrupt_handler(uint8_t n, interrupt_handler_t h) {
     interrupt_handlers[n] = h;
 }
 
-interrupt_handler_t isr_handler255(pt_regs *regs){
+void isr_handler255(pt_regs *regs){
 
     printf("Interrupt No.255 is processed\n");
 }
 
-interrupt_handler_t page_fault(pt_regs *regs) {
+void page_fault(pt_regs *regs) {
     uint32_t cr2;
     asm volatile ("mov %%cr2, %0" : "=r" (cr2));
 

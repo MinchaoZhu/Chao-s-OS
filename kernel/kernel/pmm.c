@@ -156,7 +156,7 @@ void* physic_alloc(uint32_t byte_size) {
     if(ret_page == 0)
         return 0;
     ret_page = (page_frame_t*)((uint32_t) ret_page + PAGE_OFFSET);
-    return ret_page->physic_addr;
+    return (void*) ret_page->physic_addr;
 }
 
 // allocate a contigious pages block, return the struct page_frame_t

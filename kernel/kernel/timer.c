@@ -6,7 +6,7 @@
 
 timer_t* timers = 0;
 
-static interrupt_handler_t timer_schedule(pt_regs* regs);
+static void timer_schedule(pt_regs* regs);
  
 void init_timer(){
     register_interrupt_handler(32, timer_schedule);
@@ -22,7 +22,7 @@ void init_timer(){
 }
 
 
-interrupt_handler_t timer_schedule(pt_regs* regs) {
+void timer_schedule(pt_regs* regs) {
     timer_t* current_timer = timers;
     while(current_timer) {
         if(--(current_timer->elapse) == 0) {

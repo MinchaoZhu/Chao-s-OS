@@ -11,8 +11,8 @@ void init_interrupt_handlers();
 void register_interrupt_handler(uint8_t n, interrupt_handler_t h);
 
 // call interrupt handler funtion
-interrupt_handler_t isr_handler255(pt_regs *regs);
-interrupt_handler_t page_fault(pt_regs *regs);
+void isr_handler255(pt_regs *regs);
+void page_fault(pt_regs *regs);
 
 
 

@@ -52,6 +52,5 @@ void init_keyboard();
 
 
 
-static uint8_t crtl_status, shift_status, alt_status, caps_lock_status, ext_scancode;
 
 #endif // IO_KEABOARD_H_

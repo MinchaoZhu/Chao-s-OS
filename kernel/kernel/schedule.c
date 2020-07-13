@@ -6,7 +6,7 @@ extern task_list_node_t* tail;
 extern task_list_node_t* current_task;
 
 
-static switch_context(context_t* cur, context_t* next);
+static void switch_context(context_t* cur, context_t* next);
 
 timer_callback task_schedule() {
     if(current_task) {

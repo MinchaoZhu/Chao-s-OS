@@ -11,6 +11,9 @@ uint32_t keyboard_output_buffer_length = 512;
 uint8_t* keyboard_output_buffer;
 uint32_t k_index = 0;
 
+static uint8_t crtl_status, shift_status, alt_status, caps_lock_status, ext_scancode;
+
+
 void keyboard_input_handler(); 
 
 

@@ -52,7 +52,7 @@ char* hex2string(unsigned int n, char* buf, size_t max_size){
 		char mapX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 		int i = max_size - 1;
-		int num = 0;
+		size_t num = 0;
 		buf[i] = '\0';
 		while(i>=0 && n>0){
 			--i;
