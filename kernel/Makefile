@@ -27,6 +27,10 @@ CPPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 LDFLAGS:=$(LDFLAGS) $(KERNEL_ARCH_LDFLAGS)
 LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 
+KERNEL_LIB_OBJS=\
+kernel/klib/list.o \
+kernel/klib/map.o \
+
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
@@ -43,6 +47,7 @@ kernel/math.o \
 kernel/psf.o \
 kernel/terminal.o \
 kernel/keyboard.o \
+$(KERNEL_LIB_OBJS) \
 
 
 OBJS=\
@@ -53,7 +58,6 @@ $(KERNEL_OBJS) \
 $(FONT_OBJS)\
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
-
 
 LINK_LIST=\
 $(LDFLAGS) \

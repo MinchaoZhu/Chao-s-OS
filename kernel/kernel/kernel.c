@@ -14,6 +14,7 @@
 #include "gui/terminal.h"
 #include "io/keyboard.h"
 
+
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
 extern page_t tables[KERNEL_NORMAL_ZONE_DIRECTORY_SIZE + 1][1024];
@@ -71,8 +72,6 @@ void kernel_main(void) {
 	init_psf(); // init psf font
 	init_main_terminal(); 
 	init_keyboard(); // load keyboard driver
-	
-
 
 	while(1)
 		asm volatile ("hlt"); // CPU halt;

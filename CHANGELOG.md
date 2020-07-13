@@ -31,6 +31,8 @@
 - Timer schedule
 - Add a pc screen font(PSF): font.psf
 - GUI: terminal
+- Kernel data structure: list
+- Kernel data structure: map(hash table)
 
 
 ### Change
