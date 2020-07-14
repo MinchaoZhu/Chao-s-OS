@@ -2,6 +2,7 @@
 #define KERNEL_TASK_H_
 #include <stdint.h>
 #include "kernel/vmm.h"
+#include "klib/list.h"
 
 typedef uint32_t pid_t;
 
@@ -35,13 +36,9 @@ typedef struct task_struct {
     context_t context;          // its running context
     page_directory_t* page_dir; // its page directory physic address
     volatile task_state state;  // its state
+    struct list_head list_head;
 } task_struct_t;
 
-typedef struct task_list_node {
-    struct task_list_node* next;
-    struct task_list_node* prev;
-    task_struct_t*      task_ptr;
-} task_list_node_t;
 
 
 int32_t thread_create(int (*fn)(void *), void *arg);

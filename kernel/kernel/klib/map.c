@@ -3,12 +3,8 @@
 #include <string.h>
 #include <limits.h>
 
-// largest prime less than 2^index
-static const uint32_t primes[33] = {0, 1, 3, 7, 13, 31, 53, 97, \
-                                    193, 389, 769, 1543, 3079, 6151, 12289, 24593, \
-                                    49157, 98317, 196613, 393241, 786433, 1572869, 3145739, 6291469, \
-                                    12582917, 25165843, 50331653, 100663319, 201326611, 402653189, 805306457, 1610612741, \ 
-                                    2136745621};
+// largest prime after multiplying sizeof(map_node_t) less than 2^index
+static const uint32_t primes[29] = {1, 2, 5, 7, 19, 41, 83, 167, 337, 677, 1361, 2729, 5449, 10909, 21841, 43669, 87359, 174761, 349519, 699037, 1398091, 2796181, 5592373, 11184799, 22369601, 44739181, 89478457, 178956937, 357913931};
 
 map_t* map_init() {
     map_t* map = (map_t*) kmalloc(sizeof(map_t));
@@ -50,6 +46,7 @@ static inline void map_rehash(map_t *map, uint32_t new_capacity_level) {
         if(old_list[i].status == MAP_OCCUPIED)
             map_insert(old_list[i].key, old_list[i].value, map);
     }
+    kfree(old_list);
 }
 
 /**
@@ -78,7 +75,7 @@ static int _map_find(uint32_t key, map_t *map) {
  * else       *value unchanged, return 0
  * */
 int map_find(uint32_t key, uint32_t *value, map_t *map) {
-    int index = _map_find(key, map);
+    uint32_t index = _map_find(key, map);
     if(index != UINT32_MAX) {
         *value = map->list[index].value;
         return 1;
@@ -88,7 +85,7 @@ int map_find(uint32_t key, uint32_t *value, map_t *map) {
 
 void map_insert(uint32_t key, uint32_t value, map_t *map) {
 
-    if((map->capacity_level < 31) && (map->capacity - map->size) * LOAD_FACTOR_DIVIDEND_MAX <= \
+    if((map->capacity_level < 27) && (map->capacity - map->size) * LOAD_FACTOR_DIVIDEND_MAX <= \
        (LOAD_FACTOR_DIVISOR_MAX - LOAD_FACTOR_DIVIDEND_MAX) * map->size)
         map_rehash(map, map->capacity_level + 1);
     uint32_t probe_level = 0, h = hash(key, map);
@@ -109,7 +106,7 @@ void map_delete(uint32_t key, map_t *map) {
     if((map->capacity_level > 3) && (map->capacity - map->size) * LOAD_FACTOR_DIVIDEND_MIN >= \
        (LOAD_FACTOR_DIVISOR_MIN - LOAD_FACTOR_DIVIDEND_MIN) * map->size)
             map_rehash(map, map->capacity_level - 1);
-    int index = _map_find(key, map);
+    uint32_t index = _map_find(key, map);
     if(index != UINT32_MAX){
         map->list[index].status = MAP_DELETED;
         map->size --;

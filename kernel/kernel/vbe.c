@@ -35,8 +35,8 @@ void init_vbe() {
         map(&pgd_k, vram + i * PAGE_SIZE, vram + i * PAGE_SIZE,  PAGE_PRESENT | PAGE_WRITE);
     }
 
-    for(int i = 0; i<vbe_mode_info->Xres; ++i) {
-        for(int j = 0; j<vbe_mode_info->Yres; ++j) {
+    for(int i = 0; i<Xres; ++i) {
+        for(int j = 0; j<Yres; ++j) {
             put_pixel((uint8_t*) vram, i, vbe_mode_info->bpp, j, vbe_mode_info->pitch, 0xffffff);
             put_pixel((uint8_t*) vbe_buffer, i, vbe_mode_info->bpp, j, vbe_mode_info->pitch, 0xffffff);
         }

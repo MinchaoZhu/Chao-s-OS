@@ -3,7 +3,7 @@
 
 #include "kernel/task.h"
 
-#define TASK_SWITCH_FREQUENCY 20
+#define TASK_SWITCH_FREQUENCY 500
 
 
 void init_schedule();

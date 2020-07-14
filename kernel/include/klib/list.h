@@ -8,11 +8,11 @@
 
 typedef struct list_head {
     struct list_head *next, *prev;
-} list_head;
+} list_head_t;
 
 #define LIST_HEAD_INIT(name) {&(name), &(name)}
 #define LIST_HEAD(name) \
-    struct list_head = LIST_HEAD_INIT(name)
+    struct list_head name = LIST_HEAD_INIT(name)
 
 #define INIT_LIST_HEAD(ptr) do { \
     (ptr)->next = (ptr);(ptr)->prev = (ptr); \
@@ -39,6 +39,7 @@ static inline void _list_del(struct list_head *prev, struct list_head *next) {
     next->prev = prev;
 }
 
+// remove the node from list
 static inline void list_del(struct list_head *entry) {
     _list_del(entry->prev, entry->next);
     entry->next = NULL;

@@ -7,7 +7,7 @@
 #define TIMER_FREQUENCY_MAX 1193180
 #define TIMER_FREQUENCY_MIN 2
 
-#define TIMER_FRE 10000 // testing frequency, in republish version, it shouble be 1193180
+#define TIMER_FRE 1000 // testing frequency, in republish version, it shouble be 1193180
 
 
 typedef void (*timer_callback)(void);

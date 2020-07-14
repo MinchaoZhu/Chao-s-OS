@@ -3,10 +3,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "klib/list.h"
+#include "klib/map.h"
 
-task_list_node_t* tasks;
-task_list_node_t* tail;
-task_list_node_t* current_task;
+LIST_HEAD(tasks);
+map_t* tasks_map_ptr;
+task_struct_t* current_task;
 extern char kernel_stack[STACK_SIZE];
 extern page_directory_t pgd_k[1024];
 
@@ -14,35 +16,35 @@ pid_t current_pid = 0;
 
 
 void init_task() {
+    tasks_map_ptr = map_init();
     current_pid = 0;
-    tasks = (task_list_node_t*) kmalloc(sizeof(task_list_node_t));
-    task_struct_t* root = (task_struct_t*) kmalloc(sizeof(task_struct_t)); 
-    tasks->next = tasks;
-    tasks->prev = tasks;
-    tasks->task_ptr = root;
-    tail = tasks;
+    task_struct_t* new_task = (task_struct_t*) kmalloc(sizeof(task_struct_t));
 
-    root->flags = 0;
-    root->priority = 0;
-    root->pid = current_pid++;
-    root->ppid = UINT32_MAX;
-    root->stack = (uint32_t) &(kernel_stack);
-    root->page_dir = ((uint32_t)&pgd_k) - PAGE_OFFSET;
-    root->state = TASK_RUNNABLE;
-    current_task = tasks;
+    new_task->flags = 0;
+    new_task->priority = 0;
+    new_task->pid = current_pid++;
+    new_task->ppid = UINT32_MAX;
+    new_task->stack = (uint32_t) &(kernel_stack);
+    new_task->page_dir = ((uint32_t)&pgd_k) - PAGE_OFFSET;
+    new_task->state = TASK_RUNNABLE;
+    current_task = new_task;
+
+    map_insert(new_task->pid, (uint32_t)new_task, tasks_map_ptr);
+
+    list_add_tail(&new_task->list_head, &tasks);
 }
 
 
 int32_t thread_create(int (*fn)(void *), void *arg) {
-    task_list_node_t* new_task_node = (task_list_node_t*) kmalloc(sizeof(task_list_node_t));
-    task_struct_t* new_task = (task_struct_t*) kmalloc(sizeof(task_struct_t)); 
+    
+    task_struct_t* new_task = (task_struct_t*) kmalloc(sizeof(task_struct_t));
 
     uint32_t* new_stack = (uint32_t*) kmalloc(STACK_SIZE_KERNEL);
 
     new_task->flags = 0;
     new_task->priority = 0;
     new_task->pid = current_pid++;
-    new_task->ppid = current_task->task_ptr->pid;
+    new_task->ppid = current_task->pid;
     new_task->stack = (uint32_t) new_stack;
     new_task->page_dir = ((uint32_t)&pgd_k) - PAGE_OFFSET;
     new_task->state = TASK_RUNNABLE;
@@ -55,13 +57,9 @@ int32_t thread_create(int (*fn)(void *), void *arg) {
     new_task->context.esp = (uint32_t) new_stack;
     new_task->context.eflags = 0x200;
 
-    new_task_node->task_ptr = new_task;
-    new_task_node -> next = tail->next;
-    new_task_node -> prev = tail;
-    tail -> next = new_task_node;
-    tasks -> prev = new_task_node;
-    tail = new_task_node;
 
+    map_insert(new_task->pid, (uint32_t)new_task, tasks_map_ptr);
+    list_add_tail(&new_task->list_head, &tasks);
     return new_task->pid;
 }
 
@@ -71,23 +69,13 @@ int32_t thread_create(int (*fn)(void *), void *arg) {
 void thread_exit(pid_t pid) {
     if(pid == 0)
         return;
-    task_list_node_t* node = tasks; 
-    if(tasks->task_ptr->pid != pid){
-        node = node -> next;
-        while(node != tasks) {
-            if(node -> task_ptr ->pid == pid)
-                break;
-            node = node->next;
-        }
-        if(node == tasks)
-            return;
+    uint32_t value; 
+    if(map_find(pid, &value, tasks_map_ptr)) {
+        task_struct_t* task = (task_struct_t*) value;
+        map_delete(pid, tasks_map_ptr);
+        list_del(&task->list_head);
+        kfree(task->stack);
+        kfree(task->page_dir);
+        kfree(task);
     }
-    task_struct_t* task_info = node->task_ptr;
-    kfree(task_info->stack);
-    kfree(task_info->page_dir);
-    kfree(task_info);
-    
-    node->prev->next = node->next;
-    node->next->prev = node->prev;
-    kfree(node);
 }

@@ -32,7 +32,7 @@ typedef struct map {
     map_node_t *list;
 } map_t;
 
-// get a hash map with capacity of 2^bits
+// get a hash map with initial capacity of 7
 // return a new map pointer
 map_t* map_init();
 

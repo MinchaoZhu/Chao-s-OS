@@ -13,7 +13,7 @@
 #include "gui/psf.h"
 #include "gui/terminal.h"
 #include "io/keyboard.h"
-
+#include "klib/list.h"
 
 extern normal_mem_t normal_mem;
 extern page_directory_t pgd_k[1024];
@@ -54,6 +54,21 @@ __attribute__((section(".init.text"))) void kernel_main_init(void) {
 	kernel_main();
 }
 
+int thread1(void* v) {
+	while(1){
+		printf("%c ", 'a');
+		asm volatile ("hlt"); // CPU halt;
+	}
+	return 0;
+}
+
+int thread2(void* v) {
+	while(1){
+		printf("%c ", 'b');
+		asm volatile ("hlt"); // CPU halt;
+	}
+	return 0;
+}
 
 void kernel_main(void) {
 	pgd_k[0] = 0; // reset the tmp directory
@@ -72,9 +87,17 @@ void kernel_main(void) {
 	init_psf(); // init psf font
 	init_main_terminal(); 
 	init_keyboard(); // load keyboard driver
+	printf("!!!\n");
 
-	while(1)
+	thread_create(thread1, NULL);
+	thread_create(thread2, NULL);
+
+
+
+	while(1){
+		printf("%d ", 0);
 		asm volatile ("hlt"); // CPU halt;
+	}
 }
 
 
