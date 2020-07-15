@@ -9,6 +9,7 @@
 LIST_HEAD(tasks);
 map_t* tasks_map_ptr;
 task_struct_t* current_task;
+task_struct_t* _next_task;
 extern char kernel_stack[STACK_SIZE];
 extern page_directory_t pgd_k[1024];
 
@@ -28,7 +29,7 @@ void init_task() {
     new_task->page_dir = ((uint32_t)&pgd_k) - PAGE_OFFSET;
     new_task->state = TASK_RUNNABLE;
     current_task = new_task;
-
+    _next_task = new_task;
     map_insert(new_task->pid, (uint32_t)new_task, tasks_map_ptr);
 
     list_add_tail(&new_task->list_head, &tasks);
@@ -57,9 +58,9 @@ int32_t thread_create(int (*fn)(void *), void *arg) {
     new_task->context.esp = (uint32_t) new_stack;
     new_task->context.eflags = 0x200;
 
-
+    
     map_insert(new_task->pid, (uint32_t)new_task, tasks_map_ptr);
-    list_add_tail(&new_task->list_head, &tasks);
+    list_add_tail(&new_task->list_head, &current_task->list_head);
     return new_task->pid;
 }
 

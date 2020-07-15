@@ -56,7 +56,7 @@ __attribute__((section(".init.text"))) void kernel_main_init(void) {
 
 int thread1(void* v) {
 	while(1){
-		printf("%c ", 'a');
+		printf("%s\n", "aaaaaaaaaaaaaaaaaa");
 		asm volatile ("hlt"); // CPU halt;
 	}
 	return 0;
@@ -64,7 +64,7 @@ int thread1(void* v) {
 
 int thread2(void* v) {
 	while(1){
-		printf("%c ", 'b');
+		printf("%s\n", "bbbbbbbbbbbbbbbbbb");
 		asm volatile ("hlt"); // CPU halt;
 	}
 	return 0;
@@ -87,7 +87,6 @@ void kernel_main(void) {
 	init_psf(); // init psf font
 	init_main_terminal(); 
 	init_keyboard(); // load keyboard driver
-	printf("!!!\n");
 
 	thread_create(thread1, NULL);
 	thread_create(thread2, NULL);
@@ -95,7 +94,7 @@ void kernel_main(void) {
 
 
 	while(1){
-		printf("%d ", 0);
+		printf("%s\n", "ccccccccccccccccccc");
 		asm volatile ("hlt"); // CPU halt;
 	}
 }

@@ -3,12 +3,26 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include "kernel/sync.h"
+
+MUTEX(io_lock);
+// SPIN_LOCK(s_lock);
 
 static bool print(const char* data, size_t length) {
+	mutex_acquire(&io_lock);
+	// spin_lock_acquire(&s_lock);
 	const unsigned char* bytes = (const unsigned char*) data;
-	for (size_t i = 0; i < length; i++)
-		if (putchar(bytes[i]) == EOF)
+	for (size_t i = 0; i < length; i++){
+		if (putchar(bytes[i]) == EOF){
+			mutex_release(&io_lock);
+			// spin_lock_release(&s_lock);
+
 			return false;
+		}
+	}
+	mutex_release(&io_lock);
+	// spin_lock_release(&s_lock);
+
 	return true;
 }
 
