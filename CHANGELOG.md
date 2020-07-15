@@ -33,6 +33,8 @@
 - GUI: terminal
 - Kernel data structure: list
 - Kernel data structure: map(hash table)
+- Add mutex & spin_lock
+    - spin_lock is useless in single-core processor
 
 
 ### Change
