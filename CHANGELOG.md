@@ -35,7 +35,7 @@
 - Kernel data structure: map(hash table)
 - Add mutex & spin_lock
     - spin_lock is useless in single-core processor
-
+- Kernel data structure: concurrent circular queue
 
 ### Change
 - Change the image layout in order to support linux-like virtual memory mapping
