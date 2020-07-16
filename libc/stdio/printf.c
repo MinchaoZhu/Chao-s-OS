@@ -68,6 +68,10 @@ char* hex2string(unsigned int n, char* buf, size_t max_size){
 		int i = max_size - 1;
 		size_t num = 0;
 		buf[i] = '\0';
+		if(n == 0) {
+			buf[--i] = '0';
+			++num;
+		}
 		while(i>=0 && n>0){
 			--i;
 			++num;
