@@ -7,8 +7,6 @@
 #include "kernel/schedule.h"
 #include "klib/list.h"
 
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
 typedef struct circular_queue {
     uint32_t begin;
     uint32_t count;
@@ -79,9 +77,5 @@ static inline uint32_t circular_dequeue(struct circular_queue* queue) {
     }
     return ret;
 }
-
-
-
-#pragma GCC pop_options
 
 #endif // KLIB_QUEUE_H_
