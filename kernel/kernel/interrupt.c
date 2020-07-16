@@ -2,8 +2,9 @@
 #include "interrupt/interrupt.h" //isr_handler0~255
 #include <stdio.h>
 #include <string.h>
+#include "kernel/task.h"
 interrupt_handler_t interrupt_handlers[256];
-
+extern task_struct_t* current_task;
 
 
 void init_interrupt_handlers() {
@@ -26,8 +27,8 @@ void isr_handler255(pt_regs *regs){
 void page_fault(pt_regs *regs) {
     uint32_t cr2;
     asm volatile ("mov %%cr2, %0" : "=r" (cr2));
-
-    printf("Page fault at 0x%x, virtual faulting address 0x%x\n", regs->eip, cr2);
+    printf("At thread PID = %d:\n", current_task->pid);
+    printf("Page fault at %#08X, virtual faulting address %#08X\n", regs->eip, cr2);
     printf("Error code: %x\n", regs->err_code);
 
     // bit 0 not present
