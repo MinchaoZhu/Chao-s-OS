@@ -78,7 +78,7 @@ static inline void mutex_release(struct mutex *lock) {
         list_move_to_tail(lock->waiting_list.next, &_next_task->list_head);
         // set _next task is this waiting one
         _next_task = container_of(tmp, task_struct_t,list_head);
-        _next_task->state = TASK_SLEEPING;
+        _next_task->state = TASK_RUNNABLE;
     }
     lock->holder = -1;
     lock->value = __ATOMIC_RELAXED;
